@@ -2,45 +2,66 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.subsystems.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.MecanumSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.commands.DriveCommand;
+import org.firstinspires.ftc.teamcode.util.JoystickSupplier;
 
-// ! Código para OpMode, donde varios procesos pueden ser ejecutados a la vez
-// En un LinearOpMode, los procesos son ejecutados paso a paso, mientras que un OpMode, son ejecutados en un bucle
+// Personally, I chose to run my code using a command-based Op Mode since it works better for me
+// In a regular LinearOpMode, processes are executed in a sequential workflow
+// In an OpMode, on the other hand, code is executed through loops
 @TeleOp(name = "CMD", group = "Op mode")
 public class CMDOpMode extends CommandOpMode {
-    // Declaring input variables //
-    GamepadEx gamepad = new GamepadEx(HardwareMap.gamepad);
+    // Declaring input systems //
+    GamepadEx gamepad;
 
 
-    // Declaring subsystems
-
+    // Declaring subsystems //
+    MecanumSubsystem mecanumSubsystem;
 
     @Override
     public void initialize() {
-        // Aquí va el código que se ejecuta justo después de presionar el botón INIT
-        // Como, por ejemplo, declarar de subsistemas, setear el IMU, etc.
+        // Here, declare code to be executed right after pressing the INIT button
+        // Including, for example, declaration of subsystems, configuring the IMU, etc.
 
+        // Declaring subsystems & their default commands //
+        // Default commands are executed every time another command is not being executed
+        // This makes it perfect for tasks like setting up the drive train and that stuff lmao
+        mecanumSubsystem = new MecanumSubsystem(hardwareMap, telemetry);
+        mecanumSubsystem.setDefaultCommand(
+                new DriveCommand(
+                        mecanumSubsystem,
+                        new JoystickSupplier(() -> gamepad.getLeftX(), () -> gamepad.getLeftY()),
+                        () -> gamepad.getRightX()
+                )
+        );
+
+        // Configuring control bindings
         configureBindings();
     }
 
     @Override
     public void runOpMode() {
-        // Código que se tiene que ejecutar constantemente
+        // Code executed at the very beginning, right after hitting the INIT Button
         initialize();
-        CommandScheduler.getInstance().run();
 
-        // Pausa el OpMode hasta que el botón de START sea presionado en la Driver Hub
+        // Pauses OpMode until the START button is pressed on the Driver Hub
         waitForStart();
+
+        // Run the scheduler
+        while (opModeIsActive()) {
+            // Command for actually running the scheduler
+            CommandScheduler.getInstance().run();
+        }
 
     }
 
     private void configureBindings() {
-        // Aquí dentro se declaran todos los bindings de controles
+        // All control bindings are declared here
     }
 }
+
+// Emilio Nájera, May—29th—2025
