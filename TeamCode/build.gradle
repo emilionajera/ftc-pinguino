@@ -23,6 +23,16 @@ android {
     }
 }
 
+// Command to sync all FTCLib imports to SolversLib imports
+// find . -type f -name "*.java" -exec sed -i '' 's/com.arcrobotics.ftclib/com.seattlesolvers.solverslib/g' {} +
+repositories {
+    maven {
+        url "https://repo.dairy.foundation/releases"
+    }
+}
+
 dependencies {
     implementation project(':FtcRobotController')
+    implementation "org.solverslib:core:0.2.7"
+    implementation "org.solverslib:pedroPathing:0.2.5" // pedroPathing
 }
