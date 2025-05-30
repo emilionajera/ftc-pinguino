@@ -15,9 +15,9 @@ import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.MecanumDriveWhe
 import org.firstinspires.ftc.robotcore.external.Supplier;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.misc.MecanumConstants;
 import org.firstinspires.ftc.teamcode.util.JoystickSupplier;
-
-import kotlin.Unit;
+import com.seattlesolvers.solverslib.util.MathUtils;
 
 public class MecanumSubsystem extends SubsystemBase {
 
@@ -32,11 +32,8 @@ public class MecanumSubsystem extends SubsystemBase {
 
 
     // Declaring motors
-    MotorEx frontLeftMotor;
-    MotorEx frontRightMotor;
-    MotorEx backLeftMotor;
-    MotorEx backRightMotor;
-    MotorEx[] motors = {}; // todo: Utilizar un motorGroup para el elevador y demás subsistemas
+    MotorEx frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
+    MotorEx[] motors = {};
 
     // Setting up motor locations relative to the robot center and kinematics object
     Translation2d frontLeftLocation =
@@ -63,19 +60,18 @@ public class MecanumSubsystem extends SubsystemBase {
         this.telemetry = telemetry;
 
         // Setting up motors
-        frontLeftMotor = new MotorEx(hardwareMap, "motorOne"); // todo: check these ids
-        frontRightMotor = new MotorEx(hardwareMap, "motorTwo");
-        backLeftMotor = new MotorEx(hardwareMap, "motorThree");
-        backRightMotor = new MotorEx(hardwareMap, "motorFour");
-
-        frontLeftMotor.setInverted(true); // todo check these inverted motors
-        backLeftMotor.setInverted(true); // todo check these inverted motors
+        frontLeftMotor = new MotorEx(hardwareMap, MecanumConstants.Setup.frontLeftMotorId); // todo: check these ids
+        frontRightMotor = new MotorEx(hardwareMap, MecanumConstants.Setup.frontRightMotorId);
+        backLeftMotor = new MotorEx(hardwareMap, MecanumConstants.Setup.backLeftMotorId);
+        backRightMotor = new MotorEx(hardwareMap, MecanumConstants.Setup.backRightMotorId);
 
         motors = new MotorEx[]{frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor};
         motorSetup();
 
         // Setting up sensors
-        imu = hardwareMap.get(IMU.class, "imu");
+        otos = hardwareMap.get(SparkFunOTOS.class, MecanumConstants.Setup.otosId);
+
+        imu = hardwareMap.get(IMU.class, MecanumConstants.Setup.imuId);
         imu.resetYaw();
     }
 
@@ -83,7 +79,7 @@ public class MecanumSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // This function will be called every time the Scheduler is ran
-        // todo: create a pose estimator
+        // todo: create a pose estimator using otos
         System.out.println("cutie pie");
     }
 
@@ -111,7 +107,7 @@ public class MecanumSubsystem extends SubsystemBase {
         // Ticks/Second = (RPM/60) * Ticks per rev
         // Ticks/Second = 2800
         // This is because setVelocity() uses Encoder ticks per second, so we simply convert to this unit
-        double desiredTicksPerSecond = 2800;
+        double desiredTicksPerSecond = MecanumConstants.Values.desiredTicksPerSecond;
 
         // Motor output. It takes the velocity in ticks per second
         // From meters/sec -> ticks/sec:
@@ -121,7 +117,8 @@ public class MecanumSubsystem extends SubsystemBase {
         frontRightMotor.setVelocity(wheelSpeeds.frontRightMetersPerSecond * desiredTicksPerSecond);
         backLeftMotor.setVelocity(wheelSpeeds.rearLeftMetersPerSecond * desiredTicksPerSecond);
         backRightMotor.setVelocity(wheelSpeeds.rearRightMetersPerSecond * desiredTicksPerSecond);
-        // todo: use the following code with clamp
+
+        // todo: use the following code with mathutil clamp
         /*frontLeftMotor.setVelocity(clamp(wheelSpeeds.frontLeftMetersPerSecond * desiredTicksPerSecond, desiredTicksPerSecond, desiredTicksPerSecond));
         frontRightMotor.setVelocity(wheelSpeeds.frontRightMetersPerSecond * desiredTicksPerSecond);
         backLeftMotor.setVelocity(wheelSpeeds.rearLeftMetersPerSecond * desiredTicksPerSecond);
@@ -131,11 +128,6 @@ public class MecanumSubsystem extends SubsystemBase {
     private Rotation2d getHeading() {
         return Rotation2d.fromDegrees(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
     }
-
-    private double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
 
     // Setup //
 
@@ -147,8 +139,12 @@ public class MecanumSubsystem extends SubsystemBase {
 
             // Execution mode using PIDs
             motor.setRunMode(Motor.RunMode.VelocityControl);
-            motor.setVeloCoefficients(1.0, 0.0, 0.0);
+            motor.setVeloCoefficients(1.0, 0.0, 0.0); // todo: check these PID coefficients
         }
+
+        // Inverted motors
+        frontLeftMotor.setInverted(true); // todo check these inverted motors
+        backLeftMotor.setInverted(true); // todo check these inverted motors
     }
 }
 

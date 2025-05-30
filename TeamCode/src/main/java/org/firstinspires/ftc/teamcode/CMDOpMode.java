@@ -4,8 +4,12 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.button.GamepadButton;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
+import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
+import org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.JointSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.commands.JointPosition;
 import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.MecanumSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.util.JoystickSupplier;
@@ -16,11 +20,14 @@ import org.firstinspires.ftc.teamcode.util.JoystickSupplier;
 @TeleOp(name = "CMD", group = "Op mode")
 public class CMDOpMode extends CommandOpMode {
     // Declaring input systems //
-    GamepadEx gamepad;
+    // gamepad1 comes with FTC SDK. To declare a more maneuverable version, I declared my own controller through GamepadEx
+    // With this in mind, it GamepadEx takes one parameter, which is an already-declared FTC SDK controller (gamepad1)
+    GamepadEx controller = new GamepadEx(gamepad1);
 
 
-    // Declaring subsystems //
+    // Declaring systems and subsystems //
     MecanumSubsystem mecanumSubsystem;
+    JointSubsystem testJoint;
 
     @Override
     public void initialize() {
@@ -34,10 +41,12 @@ public class CMDOpMode extends CommandOpMode {
         mecanumSubsystem.setDefaultCommand(
                 new DriveCommand(
                         mecanumSubsystem,
-                        new JoystickSupplier(() -> gamepad.getLeftX(), () -> gamepad.getLeftY()),
-                        () -> gamepad.getRightX()
+                        new JoystickSupplier(() -> controller.getLeftX(), () -> controller.getLeftY()),
+                        () -> controller.getRightX()
                 )
         );
+
+        testJoint = new JointSubsystem(hardwareMap, telemetry);
 
         // Configuring control bindings
         configureBindings();
@@ -61,6 +70,8 @@ public class CMDOpMode extends CommandOpMode {
 
     private void configureBindings() {
         // All control bindings are declared here
+        new GamepadButton(controller, GamepadKeys.Button.A)
+                .whenPressed(new JointPosition(testJoint, 35));
     }
 }
 
