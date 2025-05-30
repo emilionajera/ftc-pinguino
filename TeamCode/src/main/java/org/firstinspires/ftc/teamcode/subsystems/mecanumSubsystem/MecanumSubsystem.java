@@ -5,14 +5,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.geometry.Rotation2d;
-import com.seattlesolvers.solverslib.geometry.Rotation2dExtKt;
 import com.seattlesolvers.solverslib.geometry.Translation2d;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.MecanumDriveKinematics;
 import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.MecanumDriveWheelSpeeds;
-import com.sun.tools.javac.util.Pair;
 
 import org.firstinspires.ftc.robotcore.external.Supplier;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -34,11 +32,11 @@ public class MecanumSubsystem extends SubsystemBase {
 
 
     // Declaring motors
-    MotorEx frontLeftMotor = new MotorEx(hardwareMap, "motorOne"); // todo: check these ids
-    MotorEx frontRightMotor = new MotorEx(hardwareMap, "motorTwo");
-    MotorEx backLeftMotor = new MotorEx(hardwareMap, "motorThree");
-    MotorEx backRightMotor = new MotorEx(hardwareMap, "motorFour");
-    MotorEx[] motors = {frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor}; // todo: Utilizar un motorGroup para el elevador y demás subsistemas
+    MotorEx frontLeftMotor;
+    MotorEx frontRightMotor;
+    MotorEx backLeftMotor;
+    MotorEx backRightMotor;
+    MotorEx[] motors = {}; // todo: Utilizar un motorGroup para el elevador y demás subsistemas
 
     // Setting up motor locations relative to the robot center and kinematics object
     Translation2d frontLeftLocation =
@@ -64,8 +62,20 @@ public class MecanumSubsystem extends SubsystemBase {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
 
-        // Setting up motors and sensors
+        // Setting up motors
+        frontLeftMotor = new MotorEx(hardwareMap, "motorOne"); // todo: check these ids
+        frontRightMotor = new MotorEx(hardwareMap, "motorTwo");
+        backLeftMotor = new MotorEx(hardwareMap, "motorThree");
+        backRightMotor = new MotorEx(hardwareMap, "motorFour");
+
+        frontLeftMotor.setInverted(true); // todo check these inverted motors
+        backLeftMotor.setInverted(true); // todo check these inverted motors
+
+        motors = new MotorEx[]{frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor};
         motorSetup();
+
+        // Setting up sensors
+        imu = hardwareMap.get(IMU.class, "imu");
         imu.resetYaw();
     }
 
@@ -94,28 +104,50 @@ public class MecanumSubsystem extends SubsystemBase {
 
         // Converting chassisSpeeds object to actual wheel velocities
         MecanumDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
+        wheelSpeeds.normalize(1.0); // todo try this if not clamping
 
-        // Motor output
-        frontLeftMotor.setVelocity(wheelSpeeds.frontLeftMetersPerSecond);
-        frontRightMotor.setVelocity(wheelSpeeds.frontRightMetersPerSecond);
-        backLeftMotor.setVelocity(wheelSpeeds.rearLeftMetersPerSecond);
-        backRightMotor.setVelocity(wheelSpeeds.rearRightMetersPerSecond);
+        // Assuming it is the bare motor with simply two stacked 3:1 reductions, it would be
+        // RPM = 6000, Encoder Ticks per rev (Output Shaft) = 28 ->
+        // Ticks/Second = (RPM/60) * Ticks per rev
+        // Ticks/Second = 2800
+        // This is because setVelocity() uses Encoder ticks per second, so we simply convert to this unit
+        double desiredTicksPerSecond = 2800;
 
-        // todo: scale powers
+        // Motor output. It takes the velocity in ticks per second
+        // From meters/sec -> ticks/sec:
+        // ticks/meter: (ticksPerRev * gearRatio) / wheelCircumference
+        // ticks/second: ticks/meter * metersPerSec
+        frontLeftMotor.setVelocity(wheelSpeeds.frontLeftMetersPerSecond * desiredTicksPerSecond);
+        frontRightMotor.setVelocity(wheelSpeeds.frontRightMetersPerSecond * desiredTicksPerSecond);
+        backLeftMotor.setVelocity(wheelSpeeds.rearLeftMetersPerSecond * desiredTicksPerSecond);
+        backRightMotor.setVelocity(wheelSpeeds.rearRightMetersPerSecond * desiredTicksPerSecond);
+        // todo: use the following code with clamp
+        /*frontLeftMotor.setVelocity(clamp(wheelSpeeds.frontLeftMetersPerSecond * desiredTicksPerSecond, desiredTicksPerSecond, desiredTicksPerSecond));
+        frontRightMotor.setVelocity(wheelSpeeds.frontRightMetersPerSecond * desiredTicksPerSecond);
+        backLeftMotor.setVelocity(wheelSpeeds.rearLeftMetersPerSecond * desiredTicksPerSecond);
+        backRightMotor.setVelocity(wheelSpeeds.rearRightMetersPerSecond * desiredTicksPerSecond);*/
     }
 
     private Rotation2d getHeading() {
         return Rotation2d.fromDegrees(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
     }
 
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+
     // Setup //
 
     private void motorSetup() {
-        // Setting motors dynamically through an array without depending
+        // Setting motors dynamically through an array to make it more readable
         for (MotorEx motor : motors) {
             motor.resetEncoder();
-            motor.setRunMode(Motor.RunMode.VelocityControl);
             motor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
+            // Execution mode using PIDs
+            motor.setRunMode(Motor.RunMode.VelocityControl);
+            motor.setVeloCoefficients(1.0, 0.0, 0.0);
         }
     }
 }
