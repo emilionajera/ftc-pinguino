@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.JointSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.commands.JointPosition;
 import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.MecanumSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.commands.DriveCommand;
+import org.firstinspires.ftc.teamcode.subsystems.sliderSubsystem.SliderSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.sliderSubsystem.commands.SliderPosition;
 import org.firstinspires.ftc.teamcode.util.JoystickSupplier;
 
 // Personally, I chose to run my code using a command-based Op Mode since it works better for me
@@ -27,7 +29,10 @@ public class CMDOpMode extends CommandOpMode {
 
     // Declaring systems and subsystems //
     MecanumSubsystem mecanumSubsystem;
+
+    // ! These are test subsystems for me to try their functionality individually
     JointSubsystem testJoint;
+    SliderSubsystem testSlider;
 
     @Override
     public void initialize() {
@@ -47,6 +52,7 @@ public class CMDOpMode extends CommandOpMode {
         );
 
         testJoint = new JointSubsystem(hardwareMap, telemetry);
+        testSlider = new SliderSubsystem(hardwareMap, telemetry);
 
         // Configuring control bindings
         configureBindings();
@@ -71,7 +77,12 @@ public class CMDOpMode extends CommandOpMode {
     private void configureBindings() {
         // All control bindings are declared here
         new GamepadButton(controller, GamepadKeys.Button.A)
-                .whenPressed(new JointPosition(testJoint, 35));
+                .whenPressed(new JointPosition(testJoint, 35))
+                .whenReleased(new JointPosition(testJoint, 60));
+
+        new GamepadButton(controller, GamepadKeys.Button.B)
+                .whenPressed(new SliderPosition(testSlider, 4))
+                .whenReleased(new SliderPosition(testSlider, 10));
     }
 }
 

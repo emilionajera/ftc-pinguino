@@ -14,16 +14,15 @@ public class JointSubsystem extends SubsystemBase {
     // Declaring useful variables
     HardwareMap hardwareMap;
     Telemetry telemetry;
-    JointMath jointMath = new JointMath(JointConstants.Setup.ticksFor180); // todo: check this number (declared in constants)
+    JointMath jointMath = new JointMath(JointConstants.MotorProperties.ticksFor90,
+            JointConstants.MotorProperties.gearRatioReduction); // todo: check these numbers (declared in constants)
 
     // Declaring motors
     MotorEx rightJointMotor, leftJointMotor;
     MotorEx[] motors = {};
 
-    // todo use for elevator: MotorGroup jointMotors;
 
-
-    // Functional code //
+    // Constructor //
     public JointSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
@@ -36,19 +35,21 @@ public class JointSubsystem extends SubsystemBase {
         motorSetup();
     }
 
+
+    // Functional code //
+
     // This function essentially takes an angle, and then, after clamping, makes the motors
     // reach that angle through setTargetPosition, which takes an argument in encoder ticks :)
     public void setAngle(double angle) {
         // Clamping the angle to ensure it is within the encoder's limits, preventing it from breaking
         int targetAngle = MathUtils.clamp(
                 jointMath.toTicks(angle),
-                (int) JointConstants.MeasureLimits.minTicksAllowed,
-                (int) JointConstants.MeasureLimits.maxTicksAllowed);
+                JointConstants.MeasureLimits.minTicksAllowed,
+                JointConstants.MeasureLimits.maxTicksAllowed);
 
         // Calling the clamped angle and reaching that position
         rightJointMotor.setTargetPosition(targetAngle);
         leftJointMotor.setTargetPosition(targetAngle);
-        // TODO use for elevator: jointMotors.setTargetPosition(targetAngle);
     }
 
 
@@ -67,13 +68,6 @@ public class JointSubsystem extends SubsystemBase {
 
         // Inverted motors
         leftJointMotor.setInverted(true);
-
-
-        /* todo: USE FOR ELEVATOR
-
-        jointMotors.resetEncoder();
-        jointMotors.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        jointMotors.setRunMode(Motor.RunMode.PositionControl);*/
 
     }
 }
