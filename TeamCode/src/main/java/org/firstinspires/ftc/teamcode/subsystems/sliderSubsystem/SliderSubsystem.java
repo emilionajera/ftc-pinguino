@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems.sliderSubsystem;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
+import com.seattlesolvers.solverslib.controller.PController;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import com.seattlesolvers.solverslib.hardware.motors.MotorGroup;
@@ -55,6 +56,9 @@ public class SliderSubsystem extends SubsystemBase {
                 SliderConstants.MeasureLimits.minTicksAllowed,
                 SliderConstants.MeasureLimits.maxTicksAllowed);
 
+        telemetry.addData("target distance form slider: ", targetDistance);
+        telemetry.addData("encoder lecture: ", rightSliderMotor.encoder.getPosition());
+
         // Calling the clamped distance and reaching that position
         sliderMotors.setTargetPosition(targetDistance);
     }
@@ -72,6 +76,46 @@ public class SliderSubsystem extends SubsystemBase {
 
         sliderMotors.setRunMode(Motor.RunMode.PositionControl);
         sliderMotors.setPositionCoefficient(1.0); // todo: tune this value like a regular PID
+    }
+
+
+
+
+
+
+
+    public void setDistanceExperimental(double distance) {
+        // Clamping the distance to ensure it is within the limits
+        int targetDistance = MathUtils.clamp(
+                sliderMath.toTicks(distance),
+                SliderConstants.MeasureLimits.minTicksAllowed,
+                SliderConstants.MeasureLimits.maxTicksAllowed);
+
+        telemetry.addData("left sldier motor achievable max ticks per second: ", leftSliderMotor.ACHIEVABLE_MAX_TICKS_PER_SECOND);
+        telemetry.addData("left slider motor encoder lecture: ", leftSliderMotor.encoder.getPosition());
+
+        PController velo = new PController(1.0);
+        velo.setSetPoint(280);
+
+        while (!velo.atSetPoint()) {
+            double output = velo.calculate(
+                    //leftSliderMotor.encoder.getPosition()
+                    leftSliderMotor.getCurrentPosition()
+            );
+            leftSliderMotor.setVelocity(output);
+            rightSliderMotor.setVelocity(output);
+        }
+        sliderMotors.stopMotor();
+    }
+    
+    private void motorSetupExperimental() {
+        leftSliderMotor.setInverted(true);
+
+        sliderMotors.resetEncoder();
+        sliderMotors.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
+        sliderMotors.setRunMode(Motor.RunMode.VelocityControl);
+        sliderMotors.setVeloCoefficients(1.0, 0.0, 0.0);
     }
 }
 

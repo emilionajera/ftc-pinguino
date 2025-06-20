@@ -17,7 +17,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.misc.MecanumConstants;
 import org.firstinspires.ftc.teamcode.util.JoystickSupplier;
-import com.seattlesolvers.solverslib.util.MathUtils;
+
+import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
+
 
 public class MecanumSubsystem extends SubsystemBase {
 
@@ -127,6 +129,10 @@ public class MecanumSubsystem extends SubsystemBase {
 
     private Rotation2d getHeading() {
         return Rotation2d.fromDegrees(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+    }
+
+    private void pedroPathingTest() {
+        new FollowPathCommand();
     }
 
     // Setup //

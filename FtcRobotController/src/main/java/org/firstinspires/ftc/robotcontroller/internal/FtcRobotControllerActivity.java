@@ -383,7 +383,7 @@ public class FtcRobotControllerActivity extends Activity
     updateUI = createUpdateUI();
     callback = createUICallback(updateUI);
 
-    PreferenceManager.setDefaultValues(this, R.xml.app_settings, false);
+    //PreferenceManager.setDefaultValues(this, R.xml.app_settings, false);
 
     WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
     wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "");

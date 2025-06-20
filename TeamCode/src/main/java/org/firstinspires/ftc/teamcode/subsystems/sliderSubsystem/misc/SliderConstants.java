@@ -4,7 +4,7 @@ public final class SliderConstants {
 
     // Declaring Setup constants, like IDs
     public static final class Setup {
-        public static final String rightSliderMotorId = "sliderRightMotor"; //todo check these ids
+        public static final String rightSliderMotorId = "sliderRightMotor";
         public static final String leftSliderMotorId = "sliderLeftMotor";
     }
 

@@ -47,6 +47,8 @@ public class JointSubsystem extends SubsystemBase {
                 JointConstants.MeasureLimits.minTicksAllowed,
                 JointConstants.MeasureLimits.maxTicksAllowed);
 
+        //telemetry.addData("joint target angle: ", targetAngle);
+
         // Calling the clamped angle and reaching that position
         rightJointMotor.setTargetPosition(targetAngle);
         leftJointMotor.setTargetPosition(targetAngle);

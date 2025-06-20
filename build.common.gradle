@@ -21,7 +21,7 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdkVersion 30
+    compileSdkVersion 34
 
     signingConfigs {
         release {
@@ -50,8 +50,8 @@ android {
     defaultConfig {
         signingConfig signingConfigs.debug
         applicationId 'com.qualcomm.ftcrobotcontroller'
-        minSdk 30
-        targetSdk 34
+        minSdk 24 //minSdk 30
+        targetSdk 34 //targetSdk 34
         //noinspection ExpiredTargetSdkVersion
         multiDexEnabled true
 

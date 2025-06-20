@@ -12,7 +12,7 @@ public final class MecanumConstants {
 
         // Sensors
         public static final String imuId = "imu";
-        public static final String otosId = "otos";
+        public static final String otosId = "otos"; // same name will be used for PedroPathing
     }
 
     public static final class Values {
