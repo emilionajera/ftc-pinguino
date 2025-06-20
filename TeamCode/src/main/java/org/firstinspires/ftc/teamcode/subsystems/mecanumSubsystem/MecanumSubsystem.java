@@ -18,9 +18,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.misc.MecanumConstants;
 import org.firstinspires.ftc.teamcode.util.JoystickSupplier;
 
-import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
-
-
 public class MecanumSubsystem extends SubsystemBase {
 
     // Useful variables
@@ -131,12 +128,7 @@ public class MecanumSubsystem extends SubsystemBase {
         return Rotation2d.fromDegrees(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
     }
 
-    private void pedroPathingTest() {
-        new FollowPathCommand();
-    }
-
     // Setup //
-
     private void motorSetup() {
         // Setting motors dynamically through an array to make it more readable
         for (MotorEx motor : motors) {
