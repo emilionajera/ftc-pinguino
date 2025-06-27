@@ -18,6 +18,8 @@ public class JointSubsystem extends SubsystemBase {
             JointConstants.MotorProperties.gearRatioReduction); // todo: check these numbers (declared in constants)
 
     // Declaring motors
+
+    // todo: check solversmotor class
     MotorEx rightJointMotor, leftJointMotor;
     MotorEx[] motors = {};
 

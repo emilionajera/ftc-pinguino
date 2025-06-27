@@ -3,10 +3,16 @@ package org.firstinspires.ftc.teamcode.systems.ArmSystem;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
+import com.seattlesolvers.solverslib.command.Subsystem;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.JointSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.commands.JointPosition;
 import org.firstinspires.ftc.teamcode.subsystems.sliderSubsystem.SliderSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.sliderSubsystem.commands.SliderPosition;
+
+import java.util.Collections;
+import java.util.Set;
 
 public class ArmSystem {
     // Subsystems
@@ -88,14 +94,16 @@ public class ArmSystem {
     private Command getCommandForSubsystem(Position pose, ArmSubsystem member) {
         // Depending on what subsystem we are referring to, the switch case will perform an action on
         // either the slider or joint subsystems.
-        switch(member) {
+        return switch(member) {
             // This performed action is going to be the passed pose's slider displacement or joint angle,
             // depending of course on which subsystem was selected through the switch case
-            case sliderSubsystem -> sliderSubsystem.setDistance(pose.sliderDisplacement());
-            case jointSubsystem -> jointSubsystem.setAngle(pose.jointAngle());
-        }
 
-        return null;
+            //case sliderSubsystem -> sliderSubsystem.setDistance(pose.sliderDisplacement());
+            case sliderSubsystem -> new SliderPosition(sliderSubsystem, pose.sliderDisplacement());
+
+            //case jointSubsystem -> jointSubsystem.setAngle(pose.jointAngle());
+            case jointSubsystem -> new JointPosition(jointSubsystem, pose.jointAngle());
+        };
     }
 
     // This is the master command of all the system.
