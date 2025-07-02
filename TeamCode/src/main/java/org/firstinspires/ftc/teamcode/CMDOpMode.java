@@ -9,6 +9,7 @@ import com.seattlesolvers.solverslib.command.button.GamepadButton;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
+import org.firstinspires.ftc.teamcode.subsystems.gripperSubsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.JointSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.commands.JointPosition;
 import org.firstinspires.ftc.teamcode.subsystems.mecanumSubsystem.MecanumSubsystem;
@@ -27,8 +28,14 @@ import pedroPathing.constants.LConstants;
 @TeleOp(name = "CMD", group = "Op mode")
 public class CMDOpMode extends CommandOpMode {
     // Declaring input systems //
-    // gamepad1 comes with FTC SDK. To declare a more maneuverable version, I declared my own controller through GamepadEx
-    // With this in mind, it GamepadEx takes one parameter, which is an already-declared FTC SDK controller (gamepad1)
+    /*
+     * gamepad1 comes with FTC SDK. To declare a more maneuverable version, I declared my own
+     * controller through GamepadEx
+     *
+     * With this in mind, GamepadEx takes one parameter, which is an already-declared FTC SDK
+     * controller (gamepad1), but must be initialized in the constructor to work properly
+     *
+     */
     GamepadEx controller;
 
 
@@ -38,33 +45,39 @@ public class CMDOpMode extends CommandOpMode {
     // ! These are test subsystems for me to try their functionality individually
     JointSubsystem testJoint;
     SliderSubsystem testSlider;
-    ArmSystem arm;
+    //ArmSystem arm;
+
+    IntakeSubsystem intake;
 
     @Override
     public void initialize() {
         // Here, declare code to be executed right after pressing the INIT button
         // Including, for example, declaration of subsystems, configuring the IMU, etc.
 
-        // Configuring control bindings
+        // Configuring a new controller
         controller = new GamepadEx(gamepad1);
-        configureBindings();
 
         // Declaring subsystems & their default commands //
         // Default commands are executed every time another command is not being executed
         // This makes it perfect for tasks like setting up the drive train and that stuff lmao
         mecanumSubsystem = new MecanumSubsystem(hardwareMap, telemetry);
-        mecanumSubsystem.setDefaultCommand(
+        /*mecanumSubsystem.setDefaultCommand(
                 new DriveCommand(
                         mecanumSubsystem,
                         new JoystickSupplier(() -> controller.getLeftX(), () -> controller.getLeftY()),
                         () -> controller.getRightX()
                 )
-        );
+        );*/
 
         testJoint = new JointSubsystem(hardwareMap, telemetry);
         testSlider = new SliderSubsystem(hardwareMap, telemetry);
 
-        arm = new ArmSystem(hardwareMap, telemetry);
+        intake = new IntakeSubsystem(hardwareMap, telemetry);
+
+        //arm = new ArmSystem(hardwareMap, telemetry);
+
+        // Configuring controller key bindings
+        configureBindings();
     }
 
     @Override
@@ -80,24 +93,28 @@ public class CMDOpMode extends CommandOpMode {
             // Command for actually running the scheduler
             CommandScheduler.getInstance().run();
 
-            // Constantly updating the telemetry
             telemetry.update();
         }
     }
 
     private void configureBindings() {
         // All control bindings are declared here
+
+        new GamepadButton(controller, GamepadKeys.Button.X)
+                .whenPressed(new SliderPosition(testSlider, 10.0))
+                .whenReleased(new SliderPosition(testSlider, 5.0));
+
+        new GamepadButton(controller, GamepadKeys.Button.A)
+                .whenPressed(new SliderPosition(testSlider, 0.0));
+
+        /*
         new GamepadButton(controller, GamepadKeys.Button.A)
                 .whileHeld(new JointPosition(testJoint, 35));
-
-        new GamepadButton(controller, GamepadKeys.Button.B)
-                .whenPressed(new SliderPosition(testSlider, 4))
-                .whenReleased(new SliderPosition(testSlider, 10));
 
         new GamepadButton(controller, GamepadKeys.Button.X)
                 .whenPressed(arm.setPose(ArmSystem.ArmPoseOptions.QUESADILLA, ArmSystem.ArmOrderOptions.SJ));
         new GamepadButton(controller, GamepadKeys.Button.Y)
-                .whenPressed(arm.setPose(ArmSystem.ArmPoseOptions.HIGH_BASKET, ArmSystem.ArmOrderOptions.SJ));
+                .whenPressed(arm.setPose(ArmSystem.ArmPoseOptions.HIGH_BASKET, ArmSystem.ArmOrderOptions.SJ));*/
     }
 }
 

@@ -4,7 +4,7 @@ public final class IntakeConstants {
     // Declaring setup constants, like IDs
     public static final class Setup {
         public static final String gripperServoId = "gripperServo";
-        public static final String wristRotatorServoId = "wristAngleServo";
+        public static final String wristRotatorServoId = "wristRotatorServo";
     }
 
     // Declaring servo limits according to each part of the subsystem

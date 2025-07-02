@@ -88,8 +88,8 @@ public class MecanumSubsystem extends SubsystemBase {
         // Getting joystick input -> Convert it to ChassisSpeeds -> Convert it to kinematics
 
         // Chassis velocities
-        double strafeVelocityX = leftJoystick.x().get(); // Strafe velocity (front & back)
-        double strafeVelocityY = leftJoystick.y().get(); // Strafe velocity (sideways)
+        double strafeVelocityX = leftJoystick.getX().get(); // Strafe velocity (front & back)
+        double strafeVelocityY = leftJoystick.getY().get(); // Strafe velocity (sideways)
         double angularVelocity = rightJoystick.get(); // Angular velocity
 
         // Creating a field-relative chassis speeds from the given data

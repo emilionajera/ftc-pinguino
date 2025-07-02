@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.sliderSubsystem.commands;
 
 import com.seattlesolvers.solverslib.command.CommandBase;
-
 import org.firstinspires.ftc.teamcode.subsystems.sliderSubsystem.SliderSubsystem;
 
 public class SliderPosition extends CommandBase {
@@ -19,8 +18,18 @@ public class SliderPosition extends CommandBase {
     }
 
     @Override
-    public void execute() {
-        sliderSubsystem.setDistance(distance);
+    public void initialize() {
+        sliderSubsystem.setExtensionWithPID(distance);
+    }
+
+    @Override
+    public boolean isFinished() {
+        return sliderSubsystem.isAtTarget();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        sliderSubsystem.stopMotors();
     }
 }
 
