@@ -5,7 +5,7 @@ public final class MecanumConstants {
     // Declaring Setup constants, like device IDs
     public static final class Setup {
         // Motors
-        public static final String frontLeftMotorId = "mecanumFrontLeftMotor"; //todo check these ids
+        public static final String frontLeftMotorId = "mecanumFrontLeftMotor";
         public static final String frontRightMotorId = "mecanumFrontRightMotor";
         public static final String backLeftMotorId = "mecanumBackLeftMotor";
         public static final String backRightMotorId = "mecanumBackRightMotor";

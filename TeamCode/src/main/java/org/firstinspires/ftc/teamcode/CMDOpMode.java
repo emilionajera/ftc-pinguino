@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.button.GamepadButton;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
@@ -45,7 +47,7 @@ public class CMDOpMode extends CommandOpMode {
     // ! These are test subsystems for me to try their functionality individually
     JointSubsystem testJoint;
     SliderSubsystem testSlider;
-    //ArmSystem arm;
+    ArmSystem arm;
 
     IntakeSubsystem intake;
 
@@ -61,20 +63,21 @@ public class CMDOpMode extends CommandOpMode {
         // Default commands are executed every time another command is not being executed
         // This makes it perfect for tasks like setting up the drive train and that stuff lmao
         mecanumSubsystem = new MecanumSubsystem(hardwareMap, telemetry);
-        /*mecanumSubsystem.setDefaultCommand(
+        mecanumSubsystem.setDefaultCommand(
                 new DriveCommand(
                         mecanumSubsystem,
-                        new JoystickSupplier(() -> controller.getLeftX(), () -> controller.getLeftY()),
+                        new JoystickSupplier(() -> controller.getLeftX(), () -> -controller.getLeftY()),
                         () -> controller.getRightX()
                 )
-        );*/
+        );
 
+        // Test subsystems 
         testJoint = new JointSubsystem(hardwareMap, telemetry);
         testSlider = new SliderSubsystem(hardwareMap, telemetry);
 
         intake = new IntakeSubsystem(hardwareMap, telemetry);
 
-        //arm = new ArmSystem(hardwareMap, telemetry);
+        arm = new ArmSystem(hardwareMap, telemetry);
 
         // Configuring controller key bindings
         configureBindings();
@@ -93,28 +96,30 @@ public class CMDOpMode extends CommandOpMode {
             // Command for actually running the scheduler
             CommandScheduler.getInstance().run();
 
+            // Control bindings that involve calling void functions
+            if (controller.isDown(GamepadKeys.Button.START)) {
+                // Resets the mecanum heading manually
+                mecanumSubsystem.resetHeading();
+            }
+
             telemetry.update();
         }
     }
 
     private void configureBindings() {
-        // All control bindings are declared here
+        // All control bindings that involve command execution are declared here
 
         new GamepadButton(controller, GamepadKeys.Button.X)
-                .whenPressed(new SliderPosition(testSlider, 10.0))
-                .whenReleased(new SliderPosition(testSlider, 5.0));
+                .whenPressed(new SliderPosition(testSlider, 15));
 
-        new GamepadButton(controller, GamepadKeys.Button.A)
-                .whenPressed(new SliderPosition(testSlider, 0.0));
+       new GamepadButton(controller, GamepadKeys.Button.B)
+                .whenPressed(new JointPosition(testJoint, 80.0));
 
-        /*
-        new GamepadButton(controller, GamepadKeys.Button.A)
-                .whileHeld(new JointPosition(testJoint, 35));
-
-        new GamepadButton(controller, GamepadKeys.Button.X)
+       new GamepadButton(controller, GamepadKeys.Button.X)
                 .whenPressed(arm.setPose(ArmSystem.ArmPoseOptions.QUESADILLA, ArmSystem.ArmOrderOptions.SJ));
-        new GamepadButton(controller, GamepadKeys.Button.Y)
-                .whenPressed(arm.setPose(ArmSystem.ArmPoseOptions.HIGH_BASKET, ArmSystem.ArmOrderOptions.SJ));*/
+
+       new GamepadButton(controller, GamepadKeys.Button.A)
+                .whenPressed(arm.setPose(ArmSystem.ArmPoseOptions.HIGH_BASKET, ArmSystem.ArmOrderOptions.JS));
     }
 }
 

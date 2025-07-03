@@ -70,7 +70,7 @@ public class SliderSubsystem extends SubsystemBase {
      *
      */
 
-    public void setExtensionWithPID(double distance) {
+    public void setExtension(double distance) {
         // First of all, distance is clamped to ensure it is within safe limits
         double clampedDistance = MathUtils.clamp(
                 distance * -1,
@@ -78,13 +78,20 @@ public class SliderSubsystem extends SubsystemBase {
                 SliderConstants.MeasureLimits.maxCmAllowed
         );
 
-        // Assigning clamped distance's value
+        // Assigning target centimeters' value
         this.targetCm = clampedDistance;
 
+        /*
+         * The following lines of code return the difference between clamped distance (target)
+         * and the current centimeters (first two lines). That calculation allows me to determine a
+         * setpoint tick number that will end up being the one taken by the PID and, therefore, the
+         * one to reach (last line)
+         *
+         * This translates into: current position + distance needed to reach the target = target
+         *
+         */
         double currentCm = sliderMath.toCm(rightSliderMotor.getCurrentPosition());
         int deltaTicks = sliderMath.toTicks(clampedDistance - currentCm);
-
-        // Convert target to ticks, unit taken by the motors
         int setpointTicks = rightSliderMotor.getCurrentPosition() + deltaTicks;
 
         /* Controller that will determine the difference between target and current motor readings
@@ -115,23 +122,26 @@ public class SliderSubsystem extends SubsystemBase {
             double currentTicks = rightSliderMotor.getCurrentPosition() / 10.0;
 
             // The .calculate() method should be called on each iteration of the loop
+            // It calculates the difference between two readings, and therefore, the distance
+            // to reach
             double output = pidf.calculate(currentTicks, setpointTicks);
 
             // Clamp motor power output to a safe, achievable range
             // There is a * 7 conversion factor to ensure motor output is readable by the motors
+            // todo: try divinding by max ticks per output shaft
             double power = MathUtils.clamp((output * 7) / 100, -1.0, 1.0);
 
             // Sets motor power for the motor group (which is the same doing it individually)
             sliderMotors.set(power);
 
-            // Temporary telemetry to debug effectively
+            /* Temporary telemetry to debug effectively
             telemetry.addData("Target cm", clampedDistance);
             telemetry.addData("Total distance to move", setpointTicks);
             telemetry.addData("Current Ticks", rightSliderMotor.getCurrentPosition());
             telemetry.addData("Current cm", sliderMath.toCm(rightSliderMotor.getCurrentPosition()));
             telemetry.addData("Output", output);
             telemetry.addData("Power", power);
-            telemetry.update();
+            telemetry.update();*/
         }
 
         stopMotors();
@@ -157,7 +167,7 @@ public class SliderSubsystem extends SubsystemBase {
         rightSliderMotor.setInverted(true);
         leftSliderMotor.setInverted(false);
 
-        // Setting motors dynamically through an the sliderMotors motorGroup
+        // Setting motors dynamically through the sliderMotors motorGroup
         sliderMotors.stopAndResetEncoder();
         sliderMotors.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 

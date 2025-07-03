@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.commands;
 
 import com.seattlesolvers.solverslib.command.CommandBase;
-
 import org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.JointSubsystem;
 
 public class JointPosition extends CommandBase {
@@ -19,8 +18,18 @@ public class JointPosition extends CommandBase {
     }
 
     @Override
-    public void execute() {
+    public void initialize() {
         jointSubsystem.setAngle(angle);
+    }
+
+    @Override
+    public boolean isFinished() {
+        return jointSubsystem.isAtTarget();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        jointSubsystem.stopMotors();
     }
 }
 

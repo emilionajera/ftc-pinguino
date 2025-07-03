@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems.jointSubsystem.misc;
 
 // This method allows us to convert easily from ticks to degrees and vice versa
 public class JointMath {
-
     // Constructor and setup
     private final double ticksPerDegree;
 
@@ -12,7 +11,7 @@ public class JointMath {
     // I then apply reduction by dividing this result by the gear ratio and then we get how many ticks are
     // within one degree.
     public JointMath(double ticksFor90, double gearRatioReduction) {
-        this.ticksPerDegree = (ticksFor90 / 90) / gearRatioReduction;
+        this.ticksPerDegree = (ticksFor90 / 90); // This should return 23.94 ~ 24
     }
 
     // Convert from degrees to ticks

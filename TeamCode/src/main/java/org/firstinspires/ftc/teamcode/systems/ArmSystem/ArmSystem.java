@@ -102,8 +102,8 @@ public class ArmSystem {
 
     public enum ArmPoseOptions {
         // Defined positions to which the arm can move
-        QUESADILLA(new Position(0, 0)),
-        HIGH_BASKET(new Position(200, 30));
+        QUESADILLA(new Position(2, 2)),
+        HIGH_BASKET(new Position(15, 80));
 
         // Constructor and method to get the position
         public final Position position;

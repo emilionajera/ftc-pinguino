@@ -19,7 +19,7 @@ public class SliderPosition extends CommandBase {
 
     @Override
     public void initialize() {
-        sliderSubsystem.setExtensionWithPID(distance);
+        sliderSubsystem.setExtension(distance);
     }
 
     @Override
